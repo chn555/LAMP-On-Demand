@@ -26,12 +26,12 @@ Log_Path () {		## set log path and variables for installation logs, makes sure w
 	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
 	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
-	tempLAMP=$(mktemp -p $log_folder -t LAMP_choise_tmp.XXX)
+	tempLAMP=$(mktemp -t LAMP_choise_tmp.XXX)
 
 	if [[ -d $log_folder ]]; then
 		:
 	else
-		mkdir $log_folder
+		mkdir -p $log_folder
 	fi
 }
 
