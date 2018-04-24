@@ -104,8 +104,8 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	## prompt the user with a menu to select whether to install apache or nginx web server
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose web server to install:" 15 55 5 \
-	"Apache" "Apache web server" \
-	"Ngnix" "Nginx web server" \
+	"Apache" "Open-source cross-platform web server" \
+	"Ngnix" "Web server which can also be used as a reverse proxy, load balancer and HTTP cache" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
 	if [[ $(cat $tempLAMP) =~ "Apache" ]]; then
@@ -238,13 +238,13 @@ Web_Server_Configuration () {		## start the web server's service
 	fi
 }
 
-Sql_Server_Installation () {		## choose which web server would you like to install
+Sql_Server_Installation () {		## choose which data base server would you like to install
 	## prompt the user with a menu to select whether to install apache or nginx web server
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose sql server to install:" 15 55 5 \
-	"MariaDB" \
-	"PostgreSQL" \
-	"Exit" "from the path to LAMP stack :(" 2> $tempLAMP
+	"MariaDB" "Fork of the MySQL relational database"\
+	"PostgreSQL" "Object-relational database" \
+	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
 	if [[ $tempLAMP =~ "MariaDB" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
@@ -266,7 +266,7 @@ Sql_Server_Installation () {		## choose which web server would you like to insta
 		fi
 	elif [[ $tempLAMP =~ "PostgreSQL" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
-			yum  -y install  postgresql-server postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
+			yum install postgresql-server postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			apt-get install postgresql postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
 		fi
@@ -357,5 +357,7 @@ Root_Check
 Distro_Check
 Log_And_Variables
 Whiptail_Check
+Web_Server_Installation
+Web_Server_Configuration
 Sql_Server_Installation
 Sql_Server_Configuration
