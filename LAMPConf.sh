@@ -19,13 +19,14 @@ Root_Check () {		## checks that the script runs as root
 }
 
 Log_Path () {		## set log path and variables for installation logs, makes sure whether log folder exists and if not, create it
-	dialog_stderr_log=/var/log/LAMP-On-Demand/Error_dialog_install.log
-	dialog_stdout_log=/var/log/LAMP-On-Demand/dialog_install.log
+	whiptail_stderr_log=/var/log/LAMP-On-Demand/Error_whiptail_install.log
+	whiptail_stdout_log=/var/log/LAMP-On-Demand/whiptail_install.log
 	web_install_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_install.log
 	web_install_stdout_log=/var/log/LAMP-On-Demand/websrv_install.log
 	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
 	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
+	tempLAMP=$(mktemp LAMP.XXX)
 
 	if [[ -d $log_folder ]]; then
 		:
@@ -60,30 +61,30 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 	fi
 }
 
-Dialog_Check () {		## checks if dialog is installed, if it doesn't then install dialog
-	command -v dialog
+Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then install whiptail
+	command -v whiptail
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
-		printf "Dialog is not installed...\n"
-		read -p "Would you like to install dialog to run this script? [y/n]: " answer
+		printf "Whiptail is not installed...\n"
+		read -p "Would you like to install whiptail to run this script? [y/n]: " answer
 		until [[ $answer =~ [y|Y|n|N] ]]; do
 			printf "Invalid option\n"
-			printf "Dialog is not installed...\n"
-			read -p "Would you like to install dialog to run this script? [y/n]: " answer
+			printf "Whiptail is not installed...\n"
+			read -p "Would you like to install whiptail to run this script? [y/n]: " answer
 		done
 		if [[ $answer =~ [y|Y] ]]; then
 			if [[ $Distro_Val =~ "centos" ]]; then
-				yum install dialog -y 2>> $dialog_stderr_log >> $dialog_stdout_log
+				yum install whiptail -y 2>> $whiptail_stderr_log >> $whiptail_stdout_log
 			elif [[ $Distro_Val =~ "debian" ]]; then
-				apt-get install dialog -y 2>> $dialog_stderr_log >> $dialog_stdout_log
+				apt-get install whiptail -y 2>> $whiptail_stderr_log >> $whiptail_stdout_log
 			fi
 				if [[ $? -eq 0 ]]; then
 					:
 				else
 					printf "$line\n"
-					printf "Something went wrong during dialog installation\n"
-					printf "Please check the log file under /var/log/LAMP-On-Demand/Error_dialog_install.log\n"
+					printf "Something went wrong during whiptail installation\n"
+					printf "Please check the log file under /var/log/LAMP-On-Demand/Error_whiptail_install.log\n"
 					printf "$line\n"
 				fi
 		elif [[ $answer =~ [n|N] ]]; then
@@ -102,18 +103,19 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	Root_Check
 	Distro_Check
 	Log_Path
-	Dialog_Check
+	Whiptail_Check
 	# local PS3="Please select the web server that you would like to install and press enters: "
 	####Variables & Function calls####
 
 	## prompt the user with a menu to select whether to install apache or nginx web server
-	web_server=$(dialog --title "LAMP-On-Demand" \
+	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose web server to install:" 15 55 5 \
-	1 "Apache" \
-	2 "Ngnix" \
-	3 "Exit from the path to LAMP stack :(")
+	"Apache" \
+	"Ngnix" \
+	"Exit from the path to LAMP stack :(") 2> $tempLAMP
 
-	case $web_server in
+for i in $tempLAMP; do
+	case $i in
 		Apache)
 			if [[ $Distro_Val =~ "centos" ]]; then
 				yum install httpd -y 2>> $web_install_stderr_log >> $web_install_stdout_log
@@ -157,6 +159,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 		exit 0
 		;;
 		esac
+	done
 
 	}
 
