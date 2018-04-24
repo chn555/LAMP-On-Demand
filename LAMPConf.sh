@@ -14,7 +14,7 @@ Root_Check () {		## checks that the script runs as root
 		printf "$line\n"
 		printf "The script needs to run with root privileges\n"
 		printf "$line\n"
-		exit
+		exit 1
 	fi
 }
 
@@ -91,7 +91,7 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 			printf "$line\n"
 			printf "Exiting, have a nice day!\n"
 			printf "$line\n"
-			exit
+			exit 0
 		fi
 	fi
 
@@ -126,12 +126,13 @@ for i in $(cat $tempLAMP); do
 				printf "$line\n"
 				printf "Apache installation completed successfully, have a nice day!\n"
 				printf "$line\n"
-				web_server=apache
+				web_server=Apache
 			else
 				printf "$line\n"
 				printf "Something went wrong during Apache installation\n"
 				printf "Please check the log file under $web_install_stderr_log\n"
 				printf "$line\n"
+				exit 1
 			fi
 			;;
 		Ngnix)
@@ -144,19 +145,19 @@ for i in $(cat $tempLAMP); do
 				printf "$line\n"
 				printf "Ngnix installation completed successfully, have a nice day!\n"
 				printf "$line\n"
-				web_server=nginx
+				web_server=Nginx
 			else
 				printf "$line\n"
 				printf "Something went wrong during Ngnix installation\n"
 				printf "Please check the log file under $web_install_stderr_log\n"
 				printf "$line\n"
+				exit 1
 			fi
 			;;
 		"Exit from the path to LAMP stack :(")
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
 		printf "$line\n"
-		exit 0
 		;;
 		esac
 	done
@@ -176,7 +177,7 @@ Web_Server_Configuration () {		## start the web server's service
 				printf "Something went wrong while enabling the service\n"
 				printf "Please check the log file under $web_service_stderr_log\n"
 				printf "$line\n"
-				exit
+				exit 1
 			fi
 			systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			httpd_exit=$?
@@ -189,7 +190,7 @@ Web_Server_Configuration () {		## start the web server's service
 				printf "Something went wrong while enabling the service\n"
 				printf "Please check the log file under $web_service_stderr_log\n"
 				printf "$line\n"
-				exit
+				exit 1
 			fi
 			systemctl restart apache2 2>> $web_service_stderr_log >> $web_service_stdout_log
 			apache_exit=$?
@@ -203,7 +204,7 @@ Web_Server_Configuration () {		## start the web server's service
 			printf "Something went wrong while enabling the service\n"
 			printf "Please check the log file under $web_service_stderr_log\n"
 			printf "$line\n"
-			exit
+			exit 1
 		fi
 	elif [[ $web_server =~ "Nginx" ]]; then
 		systemctl enable nginx 2>> $web_service_stderr_log >> $web_service_stdout_log
@@ -214,7 +215,7 @@ Web_Server_Configuration () {		## start the web server's service
 			printf "Something went wrong while enabling the service\n"
 			printf "Please check the log file under $web_service_stderr_log\n"
 			printf "$line\n"
-			exit
+			exit 1
 		fi
 		systemctl restart nginx
 		if [[ $? -eq 0 ]] ;then
@@ -226,7 +227,7 @@ Web_Server_Configuration () {		## start the web server's service
 			printf "Something went wrong while enabling the service\n"
 			printf "Please check the log file under $web_service_stderr_log\n"
 			printf "$line\n"
-			exit
+			exit 1
 		fi
 	fi
 }
