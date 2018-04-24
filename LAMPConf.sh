@@ -112,7 +112,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose web server to install:" 15 55 5 \
 	"Apache" "Open-source cross-platform web server" \
-	"Ngnix" "Web, reverse proxy server and more" \
+	"Nginx" "Web, reverse proxy server and more" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 	clear
 
@@ -142,12 +142,12 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 		fi
 		if [[ $? -eq 0 ]]; then
 			printf "$line\n"
-			printf "Ngnix installation completed successfully, have a nice day!\n"
+			printf "Nginx installation completed successfully, have a nice day!\n"
 			printf "$line\n"
 			Web_Server=Nginx
 		else
 			printf "$line\n"
-			printf "Something went wrong during Ngnix installation\n"
+			printf "Something went wrong during Nginx installation\n"
 			printf "Please check the log file under $web_install_stderr_log\n"
 			printf "$line\n"
 			exit 1
