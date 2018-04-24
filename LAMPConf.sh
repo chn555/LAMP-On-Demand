@@ -56,7 +56,8 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
-		read -p "dialog is not installed, would you like to install dialog to run this script? [y/n]: " answer
+		printf "dialog is not installed...\n"
+		read -p "would you like to install dialog to run this script? [y/n]: " answer
 		until [[ $answer =~ [y|Y|n|N] ]]; do
 			printf "$line\n"
 			printf "Invalid option\n"
