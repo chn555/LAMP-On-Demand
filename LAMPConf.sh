@@ -84,7 +84,7 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 		fi
 
 
-	if
+	fi
 
 }
 Web_server_Installation () {		## choose which web server would you like to install
