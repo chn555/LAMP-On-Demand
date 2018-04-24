@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-####Function####
+####Functions####
 
 For_The_Looks () {		## for decoration output only
 	  line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
@@ -104,7 +104,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	--menu "Please choose web server to install:" 15 55 5 \
 	1 "Apache" \
 	2 "Ngnix" \
-	3 "Exit from the path to LAMP stack :("
+	3 "Exit from the path to LAMP stack :(")
 
 	case $web_server in
 		Apache)
