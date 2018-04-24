@@ -79,8 +79,9 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 				fi
 		elif [[ $answer =~ [n|N] ]]; then
 			printf "$line\n"
-			printf "Exiting, have a nice day!"
+			printf "Exiting, have a nice day!\n"
 			printf "$line\n"
+			exit
 		fi
 
 
