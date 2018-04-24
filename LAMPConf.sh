@@ -26,7 +26,7 @@ Log_Path () {		## set log path and variables for installation logs, makes sure w
 	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
 	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
-	tempLAMP=$(mktemp LAMP.XXX)
+	tempLAMP=$(mktemp -p $log_folder -t LAMP_choise_tmp.XXX)
 
 	if [[ -d $log_folder ]]; then
 		:
@@ -112,7 +112,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	--menu "Please choose web server to install:" 15 55 5 \
 	"Apache" \
 	"Ngnix" \
-	"Exit from the path to LAMP stack :(") 2> $tempLAMP
+	"Exit from the path to LAMP stack :(" 2> $tempLAMP
 
 for i in $tempLAMP; do
 	case $i in
