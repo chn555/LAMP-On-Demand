@@ -85,6 +85,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 				fi
 				;;
 			esac
+		done
 }
 Distro_Check
 Root_Check
