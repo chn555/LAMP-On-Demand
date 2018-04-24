@@ -95,7 +95,6 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 
 Web_Server_Installation () {		## choose which web server would you like to install
 	####Variables & Function calls####
-	For_The_Looks
 	Root_Check
 	Distro_Check
 	Log_Path
