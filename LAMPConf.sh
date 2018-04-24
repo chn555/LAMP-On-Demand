@@ -4,7 +4,7 @@
 ####Function####
 
 For_The_Looks () {		## for decoration output only
-	  line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
+	  line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 }
 
 Root_Check () {		## checks that the script runs as root
