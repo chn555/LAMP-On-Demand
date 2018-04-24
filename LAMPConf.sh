@@ -21,6 +21,10 @@ Log_Path () {		## set log path and variables for installation logs, makes sure w
 	web_install_stdout_log=/var/log/LAMP-On-Demand/websrv_install.log
 	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
 	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
+	sql_install_stderr_log=/var/log/LAMP-On-Demand/Error_sqlsrv_install.log
+	sql_install_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_install.log
+	sql_service_stderr_log=/var/log/LAMP-On-Demand/Error_sqlsrv_service.log
+	sql_service_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
 	tempLAMP=$log_folder/LAMP_choise.tmp
 
@@ -156,7 +160,6 @@ Web_server_Installation () {		## choose which web server would you like to insta
 
 Web_Server_Configuration () {		## start the web server's service
 	Web_server_Installation
-
 	if [[ $web_server =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
@@ -221,4 +224,121 @@ Web_Server_Configuration () {		## start the web server's service
 		fi
 	fi
 }
-Web_Server_Configuration
+
+Sql_Server_Installation () {		## choose which web server would you like to install
+
+	## prompt the user with a menu to select whether to install apache or nginx web server
+	whiptail --title "LAMP-On-Demand" \
+	--menu "Please choose sql server to install:" 15 55 5 \
+	"MariaDB" \
+	"PostgreSQL" \
+	"Exit" "from the path to LAMP stack :(" 2> $tempLAMP
+
+	if [[ $tempLAMP =~ "MariaDB" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			yum install  mariadb-server -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
+		elif [[ $Distro_Val =~ "debian" ]]; then
+			apt-get install mariadb-server mariadb-client -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
+		fi
+		if [[ $? -eq 0 ]]; then
+			printf "$line\n"
+			printf "MariaDB installation completed successfully, have a nice day!\n"
+			printf "$line\n"
+			sql_server="MariaDB"
+		else
+			printf "$line\n"
+			printf "Something went wrong during MariaDB installation\n"
+			printf "Please check the log file under $sql_install_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+	elif [[ $tempLAMP =~ "PostgreSQL" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			yum  -y install  postgresql-server postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
+		elif [[ $Distro_Val =~ "debian" ]]; then
+			apt-get install postgresql postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
+		fi
+		if [[ $? -eq 0 ]]; then
+			printf "$line\n"
+			printf "PostgreSQL installation completed successfully, have a nice day!\n"
+			printf "$line\n"
+			web_server=Nginx
+		else
+			printf "$line\n"
+			printf "Something went wrong during PostgreSQL installation\n"
+			printf "Please check the log file under $sql_install_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+	elif [[ $tempLAMP =~ "Exit" ]]; then
+		printf "$line\n"
+		printf "Exit - I hope you feel safe now\n"
+		printf "$line\n"
+	fi
+	}
+
+Sql_Server_Configuration () {		## start the web server's service
+	Sql_Server_Installation
+	if [[ $web_server =~ "MariaDB" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			systemctl enable mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+			if [[ $? -eq 0 ]]; then
+				:
+			else
+				printf "$line\n"
+				printf "Something went wrong while enabling the service\n"
+				printf "Please check the log file under $sql_service_stderr_log\n"
+				printf "$line\n"
+				exit 1
+			fi
+			systemctl restart mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+			if [[ $? -eq 0 ]] ;then
+				printf "$line\n"
+				printf "MariaDB sql server is up and running!"
+				printf "$line\n"
+			else
+				printf "$line\n"
+				printf "Something went wrong while enabling the service\n"
+				printf "Please check the log file under $sql_service_stderr_log\n"
+				printf "$line\n"
+				exit 1
+			fi		elif [[ $Distro_Val =~ "debian" ]]; then
+			systemctl enable mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+			if [[ $? -eq 0 ]]; then
+				:
+			else
+				printf "$line\n"
+				printf "Something went wrong while enabling the service\n"
+				printf "Please check the log file under $sql_service_stderr_log\n"
+				printf "$line\n"
+				exit 1
+			fi
+			systemctl restart mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+			if [[ $? -eq 0 ]] ;then
+				printf "$line\n"
+				printf "MariaDB sql server is up and running!"
+				printf "$line\n"
+			else
+				printf "$line\n"
+				printf "Something went wrong while enabling the service\n"
+				printf "Please check the log file under $sql_service_stderr_log\n"
+				printf "$line\n"
+				exit 1
+			fi
+		fi
+
+	elif [[ $sql_server =~ "PostgreSQL" ]]; then
+		sudo /etc/init.d/postgresql reload
+		if [[ $? -eq 0 ]] ;then
+			printf "$line\n"
+			printf "PostgreSQL  server is up and running!"
+			printf "$line\n"
+		else
+			printf "$line\n"
+			printf "Something went wrong while enabling the service\n"
+			printf "Please check the log file under $sql_service_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+	fi
+}
