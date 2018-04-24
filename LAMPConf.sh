@@ -93,7 +93,7 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 
 }
 
-Web_server_Installation () {		## choose which web server would you like to install
+Web_Server_Installation () {		## choose which web server would you like to install
 	####Variables & Function calls####
 	For_The_Looks
 	Root_Check
@@ -107,9 +107,9 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	## prompt the user with a menu to select whether to install apache or nginx web server
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose web server to install:" 15 55 5 \
-	"Apache" \
-	"Ngnix" \
-	"Exit" "from the path to LAMP stack :(" 2> $tempLAMP
+	"Apache" "Apache web server" \
+	"Ngnix" "Nginx web server" \
+	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
 	if [[ $tempLAMP =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
@@ -121,7 +121,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			printf "Apache installation completed successfully, have a nice day!\n"
 			printf "$line\n"
-			web_server=Apache
+			Web_Server=Apache
 		else
 			printf "$line\n"
 			printf "Something went wrong during Apache installation\n"
@@ -139,7 +139,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			printf "Ngnix installation completed successfully, have a nice day!\n"
 			printf "$line\n"
-			web_server=Nginx
+			Web_Server=Nginx
 		else
 			printf "$line\n"
 			printf "Something went wrong during Ngnix installation\n"
@@ -155,9 +155,9 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	}
 
 Web_Server_Configuration () {		## start the web server's service
-	Web_server_Installation
+	Web_Server_Installation
 
-	if [[ $web_server =~ "Apache" ]]; then
+	if [[ $Web_Server =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
@@ -196,7 +196,7 @@ Web_Server_Configuration () {		## start the web server's service
 			printf "$line\n"
 			exit 1
 		fi
-	elif [[ $web_server =~ "Nginx" ]]; then
+	elif [[ $Web_Server =~ "Nginx" ]]; then
 		systemctl enable nginx 2>> $web_service_stderr_log >> $web_service_stdout_log
 		if [[ $? -eq 0 ]] ;then
 			:
