@@ -49,8 +49,8 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 Dialog_Check () {		## checks if dialog is installed, if it doesn't then install dialog
 
 	####Variables & Function calls####
-	dialog_stderr_log=/log/LAMPConf/Error_dialog_install.log
-	dialog_stdout_log=/log/LAMPConf/dialog_install.log
+	dialog_stderr_log=/var/log/LAMPConf/Error_dialog_install.log
+	dialog_stdout_log=/var/log/LAMPConf/dialog_install.log
 	####Variables & Function calls####
 	command -v dialog
 	if [[ $? -eq 0 ]]; then
@@ -74,7 +74,7 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 				else
 					printf "$line\n"
 					printf "Something went wrong during dialog installation\n"
-					printf "Please check the log file under /log/LAMPConf/Error_dialog_install.log"
+					printf "Please check the log file under /log/LAMPConf/Error_dialog_install.log\n"
 					printf "$line\n"
 				fi
 		elif [[ $answer =~ [n|N] ]]; then
@@ -83,8 +83,6 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 			printf "$line\n"
 			exit
 		fi
-
-
 	fi
 
 }
@@ -95,8 +93,8 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	Root_Check
 	Distro_Check
 	Dialog_Check
-	web_stderr_log=/log/LAMPConf/Error_websrv_install.log
-	web_stdout_log=/log/LAMPConf/websrv_install.log
+	web_stderr_log=/var/log/LAMPConf/Error_websrv_install.log
+	web_stdout_log=/var/log/LAMPConf/websrv_install.log
 	local PS3="Please select the web server that you would like to install and press enters: "
 	####Variables & Function calls####
 
