@@ -8,7 +8,7 @@ For_The_Looks () {		## for decoration output only
 }
 
 Root_Check () {		## checks that the script runs as root
-	if [[ $EUID -eq 0 ]] ;then
+	if [[ $EUID -eq 0 ]]; then
 		:
 	else
 		zenity --error --text "please run the script as root" --width 200
@@ -21,7 +21,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 
 	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^arch$|^manjaro$" &> /dev/null
 
-	if [[ $? -eq 0 ]] ;then
+	if [[ $? -eq 0 ]]; then
 	  	Distro_Val="arch"
 	else
 	  	:
@@ -29,7 +29,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 
 	  cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^debian$|^\"Ubuntu\"$" &> /dev/null
 
-	  if [[ $? -eq 0 ]] ;then
+	  if [[ $? -eq 0 ]]; then
 	    	Distro_Val="debian"
 	  else
 	    	:
@@ -37,7 +37,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 
 	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^\"centos\"$|^\"fedora\"$" &> /dev/null
 
-	if [[ $? -eq 0 ]] ;then
+	if [[ $? -eq 0 ]]; then
 	   	Distro_Val="centos"
 	else
 		:
@@ -59,15 +59,15 @@ Web_server_Installation () {		## choose which web server would you like to insta
 
 
 ## prompt the user with a menu to select whether to install apache or nginx web server
-select opt in ${web_srv[@]} ;do
+select opt in ${web_srv[@]}; do
 	case $opt in
 		Apache)
-			if [[ $Distro_Val =~ "centos" ]] ;then
+			if [[ $Distro_Val =~ "centos" ]]; then
 				yum install httpd -y 2> $web_stderr_log > $web_stdout_log
 			elif [[ $Distro_Val =~ "debian" ]]; then
 				apt-get install apache2 -y 2> $web_stderr_log > $web_stdout_log
 			fi
-			if [[ $? -eq 0 ]] ;then
+			if [[ $? -eq 0 ]]; then
 				printf "$line\n"
 				printf "Apache installation completed successfully, have a nice day!\n"
 				printf "$line\n"
@@ -80,12 +80,12 @@ select opt in ${web_srv[@]} ;do
 			fi
 			;;
 		Ngnix)
-			if [[ $Distro_Val =~ "centos" ]] ;then
+			if [[ $Distro_Val =~ "centos" ]]; then
 				yum --enablerepo=epel -y install nginx 2> web_stderr_log > web_stdout_log
-			elif [[ $Distro_Val =~ "debian" ]] ;then
+			elif [[ $Distro_Val =~ "debian" ]]; then
 				apt-get install nginx -y
 			fi
-			if [[ $? -eq 0 ]] ;then
+			if [[ $? -eq 0 ]]; then
 				printf "$line\n"
 				printf "Ngnix installation completed successfully, have a nice day!\n"
 				printf "$line\n"
@@ -108,9 +108,29 @@ select opt in ${web_srv[@]} ;do
 
 Web_Server_Configuration () {
 
-	if [[ $web_server =~ "apache" ]] ;then
-		systemctl restart h
-
+	if [[ $web_server =~ "apache" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			systemctl restart httpd
+		elif [[ $Distro_Val =~ "debian" ]]; then
+			systemctl restart apache2
+		fi
+		if [[ $? -eq 0 ]] ;then
+			printf "$line\n"
+			printf "Apache web server is up and running!"
+			printf "$line\n"
+		else
+			printf "Something went wrong... sorry :(\n"
+		fi
+	elif [[ $web_server =~ "nginx" ]]; then
+		systemctl restart nginx
+		if [[ $? -eq 0 ]] ;then
+			printf "$line\n"
+			printf "Apache web server is up and running!"
+			printf "$line\n"
+		else
+			printf "Something went wrong... sorry :(\n"
+		fi
+	fi
 }
 
 Distro_Check
