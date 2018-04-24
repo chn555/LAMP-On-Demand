@@ -56,13 +56,12 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
-		printf "dialog is not installed...\n"
-		read -p "would you like to install dialog to run this script? [y/n]: " answer
+		printf "Dialog is not installed...\n"
+		read -p "Would you like to install dialog to run this script? [y/n]: " answer
 		until [[ $answer =~ [y|Y|n|N] ]]; do
-			printf "$line\n"
 			printf "Invalid option\n"
-			read -p "dialog is not installed, would you like to install dialog to run this script? [y/n]: " answer
-			printf "$line\n"
+			printf "Dialog is not installed...\n"
+			read -p "Would you like to install dialog to run this script? [y/n]: " answer
 		done
 		if [[ $answer =~ [y|Y] ]]; then
 			if [[ $Distro_Val =~ "centos" ]]; then
