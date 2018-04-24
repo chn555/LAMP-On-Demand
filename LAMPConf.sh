@@ -19,7 +19,7 @@ Root_Check () {		## checks that the script runs as root
 
 Distro_Check () {		## checking the environment the user is currenttly running on to determine which settings should be applied
 
-	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^arch$|^manjaro$"
+	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^arch$|^manjaro$" &> /dev/null
 
 	if [[ $? -eq 0 ]] ;then
 	  	Distro_Val="arch"
@@ -27,7 +27,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 	  	:
 	fi
 
-	  cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^debian$|^\"Ubuntu\"$"
+	  cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^debian$|^\"Ubuntu\"$" &> /dev/null
 
 	  if [[ $? -eq 0 ]] ;then
 	    	Distro_Val="debian"
@@ -35,7 +35,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 	    	:
 	  fi
 
-	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^\"centos\"$|^\"fedora\"$"
+	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^\"centos\"$|^\"fedora\"$" &> /dev/null
 
 	if [[ $? -eq 0 ]] ;then
 	   	Distro_Val="centos"
@@ -57,7 +57,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 
 	## prompt the user with a menu to select whether to install apache or nginx web server
 	select opt in ${web_srv[@]} ;do
-		case opt in
+		case $opt in
 			Apache)
 				yum install httpd -y 2> web_stderr_log > web_stdout_log
 				if [[ $? -eq 0 ]] ;then
