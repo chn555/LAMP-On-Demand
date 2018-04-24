@@ -29,7 +29,29 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	sql_service_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
 	tempLAMP=$log_folder/LAMP_choise.tmp
-	index_path=/var/www/html
+	apache_index_path=/var/www/html
+	nginx_index_path=/usr/share/nginx/html
+	my_index_html=$(printf "
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>LAMP-On-Demand</title>
+		</head>
+		<body>
+			<h1>This page is badly writen</h1>
+
+			<p>Best Distro (from top to bottom)</p>
+
+			<ul>
+				<li>ArchLinux</li>
+				<li>Manjaro</li>
+				<li>fedora</li>
+				<li>debian</li>
+			</ul>
+
+			</body>
+	</html>
+	")
 	####Variables####
 
 	if [[ -d $index_path ]]; then
@@ -160,28 +182,8 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	}
 
 Web_Server_Configuration () {		## start the web server's service
-	printf "
-	<!DOCTYPE html>
-	<html>
-		<head>
-			<title>LAMP-On-Demand</title>
-		</head>
-		<body>
-			<h1>This page is badly writen</h1>
-
-			<p>Best Distro (from top to bottom)</p>
-
-			<ul>
-				<li>ArchLinux</li>
-				<li>Manjaro</li>
-				<li>fedora</li>
-				<li>debian</li>
-			</ul>
-
-			</body>
-	</html>
-	" > $index_path/index.html
 	if [[ $Web_Server =~ "Apache" ]]; then
+		$my_index_html > $apache_index_path
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
@@ -221,6 +223,7 @@ Web_Server_Configuration () {		## start the web server's service
 			exit 1
 		fi
 	elif [[ $Web_Server =~ "Nginx" ]]; then
+		$my_index_html > $nginx_index_path
 		systemctl enable nginx 2>> $web_service_stderr_log >> $web_service_stdout_log
 		if [[ $? -eq 0 ]] ;then
 			:
@@ -231,7 +234,7 @@ Web_Server_Configuration () {		## start the web server's service
 			printf "$line\n"
 			exit 1
 		fi
-		systemctl restart nginx
+		systemctl restart nginx 2>> $web_service_stderr_log >> $web_service_stdout_log
 		if [[ $? -eq 0 ]] ;then
 			printf "$line\n"
 			printf "Nginx web server is up and running!"
