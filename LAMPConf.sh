@@ -14,7 +14,9 @@ Root_Check () {		## checks that the script runs as root
 	fi
 }
 
-Log_Path () {		## set log path and variables for installation logs, makes sure whether log folder exists and if not, create it
+Log_And_Variables () {		## set log path and variables for installation logs, makes sure whether log folder exists and if not, create it
+	####Variables####
+	line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 	whiptail_stderr_log=/var/log/LAMP-On-Demand/Error_whiptail_install.log
 	whiptail_stdout_log=/var/log/LAMP-On-Demand/whiptail_install.log
 	web_install_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_install.log
@@ -27,7 +29,8 @@ Log_Path () {		## set log path and variables for installation logs, makes sure w
 	sql_service_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
 	tempLAMP=$log_folder/LAMP_choise.tmp
-
+	index_path=/var/www/html
+	####Variables####
 	if [[ -d $log_folder ]]; then
 		:
 	else
@@ -98,15 +101,6 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 }
 
 Web_Server_Installation () {		## choose which web server would you like to install
-	####Variables & Function calls####
-	Root_Check
-	Distro_Check
-	Log_Path
-	Whiptail_Check
-	line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-	# local PS3="Please select the web server that you would like to install and press enters: "
-	####Variables & Function calls####
-
 	## prompt the user with a menu to select whether to install apache or nginx web server
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose web server to install:" 15 55 5 \
@@ -158,8 +152,27 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	}
 
 Web_Server_Configuration () {		## start the web server's service
-	Web_Server_Installation
+	printf "
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>LAMP-On-Demand</title>
+		</head>
+		<body>
+			<h1>This page is badly writen</h1>
 
+			<p>Best Distro (from top to bottom)</p>
+
+			<ul>
+				<li>ArchLinux</li>
+				<li>Manjaro</li>
+				<li>fedora</li>
+				<li>debian</li>
+			</ul>
+
+			</body>
+	</html>
+	" > $index_path
 	if [[ $Web_Server =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
@@ -226,7 +239,6 @@ Web_Server_Configuration () {		## start the web server's service
 }
 
 Sql_Server_Installation () {		## choose which web server would you like to install
-
 	## prompt the user with a menu to select whether to install apache or nginx web server
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose sql server to install:" 15 55 5 \
@@ -278,7 +290,6 @@ Sql_Server_Installation () {		## choose which web server would you like to insta
 	}
 
 Sql_Server_Configuration () {		## start the web server's service
-	Sql_Server_Installation
 	if [[ $web_server =~ "MariaDB" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
@@ -342,3 +353,9 @@ Sql_Server_Configuration () {		## start the web server's service
 		fi
 	fi
 }
+Root_Check
+Distro_Check
+Log_And_Variables
+Whiptail_Check
+Sql_Server_Installation
+Sql_Server_Configuration
