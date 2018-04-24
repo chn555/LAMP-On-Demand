@@ -62,7 +62,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 }
 
 Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then install whiptail
-	command -v whiptail
+	command -v whiptail &> /dev/null
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
@@ -195,7 +195,7 @@ Web_Server_Configuration () {		## start the web server's service
 		fi
 		if [[ $httpd_exit == 0 || $apache_exit == 0 ]]; then
 			printf "$line\n"
-			printf "Apache web server is up and running!"
+			printf "Apache web server is up and running!\n"
 			printf "$line\n"
 		else
 			printf "$line\n"
