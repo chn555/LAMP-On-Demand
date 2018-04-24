@@ -11,7 +11,9 @@ Root_Check () {		## checks that the script runs as root
 	if [[ $EUID -eq 0 ]]; then
 		:
 	else
-		zenity --error --text "please run the script as root" --width 200
+		printf "$line\n"
+		printf "The script needs to run with root privileges\n"
+		printf "$line\n"
 		exit
 	fi
 }
@@ -44,23 +46,67 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 	fi
 }
 
+Dialog_Check () {		## checks if dialog is installed, if it doesn't then install dialog
 
+	####Variables & Function calls####
+	dialog_stderr_log=/log/LAMPConf/Error_dialog_install.log
+	dialog_stdout_log=/log/LAMPConf/dialog_install.log
+	####Variables & Function calls####
+	command -v dialog
+	if [[ $? -eq 0 ]]; then
+		:
+	elif [[ $? -eq 1 ]]; then
+		read -p "dialog is not installed, would you like to install dialog to run this script? [y/n]: " answer
+		until [[ $answer =~ [y|Y|n|N] ]]; do
+			printf "$line\n"
+			printf "Invalid option\n"
+			read -p "dialog is not installed, would you like to install dialog to run this script? [y/n]: " answer
+			printf "$line\n"
+		done
+		if [[ $answer =~ [y|Y] ]]; then
+			if [[ $Distro_Val =~ "centos" ]]; then
+				yum install dialog -y 2> $dialog_stderr_out > $dialog_stdout_log
+			elif [[ $Distro_Val =~ "debian" ]]; then
+				apt-get install dialog -y 2> $dialog_stderr_out > $dialog_stdout_log
+			fi
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Something went wrong during dialog installation\n"
+					printf "Please check the log file under /log/LAMPConf/Error_dialog_install.log"
+					printf "$line\n"
+				fi
+		elif [[ $answer =~ [n|N] ]]; then
+			printf "$line\n"
+			printf "Exiting, have a nice day!"
+			printf "$line\n"
+		fi
+
+
+	if
+
+}
 Web_server_Installation () {		## choose which web server would you like to install
 
-####Variables & Function calls####
+	####Variables & Function calls####
 	For_The_Looks
-	Distro_Val
 	Root_Check
+	Distro_Check
+	Dialog_Check
 	web_stderr_log=/log/LAMPConf/Error_websrv_install.log
 	web_stdout_log=/log/LAMPConf/websrv_install.log
-	web_srv=(Apache Ngnix Exit)
 	local PS3="Please select the web server that you would like to install and press enters: "
-####Variables & Function calls####
+	####Variables & Function calls####
 
+	## prompt the user with a menu to select whether to install apache or nginx web server
+	web_server=$(dialog --title "LAMP-On-Demand" \
+	--menu "Please choose web server to install:" 15 55 5 \
+	1 "Apache" \
+	2 "Ngnix" \
+	3 "Exit from the path to LAMP stack :("
 
-## prompt the user with a menu to select whether to install apache or nginx web server
-select opt in ${web_srv[@]}; do
-	case $opt in
+	case $web_server in
 		Apache)
 			if [[ $Distro_Val =~ "centos" ]]; then
 				yum install httpd -y 2> $web_stderr_log > $web_stdout_log
@@ -97,18 +143,21 @@ select opt in ${web_srv[@]}; do
 				printf "$line\n"
 			fi
 			;;
-		Exit)
+		Exit from the path to LAMP stack :()
 		printf "$line\n"
-		printf "Exit -I hope you feel safe now\n"
-		prinf "$line\n"
+		printf "Exit - I hope you feel safe now\n"
+		printf "$line\n"
+		exit 0
 		;;
 		esac
-	done
-}
+
+	}
 
 Web_Server_Configuration () {
 
-	if [[ $web_server =~ "apache" ]]; then
+	Web_server_Installation
+
+	if [[ $web_server =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl restart httpd
 		elif [[ $Distro_Val =~ "debian" ]]; then
@@ -121,7 +170,7 @@ Web_Server_Configuration () {
 		else
 			printf "Something went wrong... sorry :(\n"
 		fi
-	elif [[ $web_server =~ "nginx" ]]; then
+	elif [[ $web_server =~ "Nginx" ]]; then
 		systemctl restart nginx
 		if [[ $? -eq 0 ]] ;then
 			printf "$line\n"
@@ -132,7 +181,4 @@ Web_Server_Configuration () {
 		fi
 	fi
 }
-
-Distro_Check
-Root_Check
-Web_server_Installation
+Web_Server_Configuration
