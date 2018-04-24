@@ -31,6 +31,13 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	tempLAMP=$log_folder/LAMP_choise.tmp
 	index_path=/var/www/html
 	####Variables####
+
+	if [[ -d $index_path ]]; then
+		:
+	else
+		mkdir -p $index_path
+	fi
+
 	if [[ -d $log_folder ]]; then
 		:
 	else
@@ -105,8 +112,9 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose web server to install:" 15 55 5 \
 	"Apache" "Open-source cross-platform web server" \
-	"Ngnix" "Web server which can also be used as a reverse proxy, load balancer and HTTP cache" \
+	"Ngnix" "Web, reverse proxy server and more" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
+	clear
 
 	if [[ $(cat $tempLAMP) =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
@@ -172,7 +180,7 @@ Web_Server_Configuration () {		## start the web server's service
 
 			</body>
 	</html>
-	" > $index_path
+	" > $index_path/index.html
 	if [[ $Web_Server =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
