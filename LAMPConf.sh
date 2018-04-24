@@ -3,10 +3,6 @@
 
 ####Functions####
 
-For_The_Looks () {		## for decoration output only
-	  line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-}
-
 Root_Check () {		## checks that the script runs as root
 	if [[ $EUID -eq 0 ]]; then
 		:
@@ -26,7 +22,7 @@ Log_Path () {		## set log path and variables for installation logs, makes sure w
 	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
 	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
 	log_folder=/var/log/LAMP-On-Demand
-	tempLAMP=$(mktemp -t LAMP_choise_tmp.XXX)
+	tempLAMP=$log_folder/LAMP_choise.tmp
 
 	if [[ -d $log_folder ]]; then
 		:
@@ -104,6 +100,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	Distro_Check
 	Log_Path
 	Whiptail_Check
+	line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
 	# local PS3="Please select the web server that you would like to install and press enters: "
 	####Variables & Function calls####
 
@@ -112,56 +109,49 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	--menu "Please choose web server to install:" 15 55 5 \
 	"Apache" \
 	"Ngnix" \
-	"Exit from the path to LAMP stack :(" 2> $tempLAMP
+	"Exit" "from the path to LAMP stack :(" 2> $tempLAMP
 
-for i in $(cat $tempLAMP); do
-	case $i in
-		Apache)
-			if [[ $Distro_Val =~ "centos" ]]; then
-				yum install httpd -y 2>> $web_install_stderr_log >> $web_install_stdout_log
-			elif [[ $Distro_Val =~ "debian" ]]; then
-				apt-get install apache2 -y 2>> $web_install_stderr_log >> $web_install_stdout_log
-			fi
-			if [[ $? -eq 0 ]]; then
-				printf "$line\n"
-				printf "Apache installation completed successfully, have a nice day!\n"
-				printf "$line\n"
-				web_server=Apache
-			else
-				printf "$line\n"
-				printf "Something went wrong during Apache installation\n"
-				printf "Please check the log file under $web_install_stderr_log\n"
-				printf "$line\n"
-				exit 1
-			fi
-			;;
-		Ngnix)
-			if [[ $Distro_Val =~ "centos" ]]; then
-				yum --enablerepo=epel -y install nginx 2>> $web_install_stderr_log >> $web_install_stdout_log
-			elif [[ $Distro_Val =~ "debian" ]]; then
-				apt-get install nginx -y 2>> $web_install_stderr_log >> $web_install_stdout_log
-			fi
-			if [[ $? -eq 0 ]]; then
-				printf "$line\n"
-				printf "Ngnix installation completed successfully, have a nice day!\n"
-				printf "$line\n"
-				web_server=Nginx
-			else
-				printf "$line\n"
-				printf "Something went wrong during Ngnix installation\n"
-				printf "Please check the log file under $web_install_stderr_log\n"
-				printf "$line\n"
-				exit 1
-			fi
-			;;
-		"Exit from the path to LAMP stack :(")
+	if [[ $tempLAMP =~ "Apache" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			yum install httpd -y 2>> $web_install_stderr_log >> $web_install_stdout_log
+		elif [[ $Distro_Val =~ "debian" ]]; then
+			apt-get install apache2 -y 2>> $web_install_stderr_log >> $web_install_stdout_log
+		fi
+		if [[ $? -eq 0 ]]; then
+			printf "$line\n"
+			printf "Apache installation completed successfully, have a nice day!\n"
+			printf "$line\n"
+			web_server=Apache
+		else
+			printf "$line\n"
+			printf "Something went wrong during Apache installation\n"
+			printf "Please check the log file under $web_install_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+	elif [[ $tempLAMP =~ "Nginx" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			yum --enablerepo=epel -y install nginx 2>> $web_install_stderr_log >> $web_install_stdout_log
+		elif [[ $Distro_Val =~ "debian" ]]; then
+			apt-get install nginx -y 2>> $web_install_stderr_log >> $web_install_stdout_log
+		fi
+		if [[ $? -eq 0 ]]; then
+			printf "$line\n"
+			printf "Ngnix installation completed successfully, have a nice day!\n"
+			printf "$line\n"
+			web_server=Nginx
+		else
+			printf "$line\n"
+			printf "Something went wrong during Ngnix installation\n"
+			printf "Please check the log file under $web_install_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+	elif [[ $tempLAMP =~ "Exit" ]]; then
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
 		printf "$line\n"
-		;;
-		esac
-	done
-
+	fi
 	}
 
 Web_Server_Configuration () {		## start the web server's service
@@ -195,7 +185,7 @@ Web_Server_Configuration () {		## start the web server's service
 			systemctl restart apache2 2>> $web_service_stderr_log >> $web_service_stdout_log
 			apache_exit=$?
 		fi
-		if [[ $httpd_exit == 0 || $apache_exit == 0  ]] ;then
+		if [[ $httpd_exit == 0 || $apache_exit == 0 ]]; then
 			printf "$line\n"
 			printf "Apache web server is up and running!"
 			printf "$line\n"
