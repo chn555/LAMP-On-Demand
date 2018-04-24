@@ -62,7 +62,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 }
 
 Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then install whiptail
-	command -v whiptail &> /dev/null
+	command -v whiptail
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
@@ -158,14 +158,9 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	}
 
 Web_Server_Configuration () {		## start the web server's service
-<<<<<<< HEAD
-	Web_server_Installation
-	if [[ $web_server =~ "Apache" ]]; then
-=======
 	Web_Server_Installation
 
 	if [[ $Web_Server =~ "Apache" ]]; then
->>>>>>> 8035080b5829e266ee4c7a86f971aa223a5411a5
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
@@ -195,7 +190,7 @@ Web_Server_Configuration () {		## start the web server's service
 		fi
 		if [[ $httpd_exit == 0 || $apache_exit == 0 ]]; then
 			printf "$line\n"
-			printf "Apache web server is up and running!\n"
+			printf "Apache web server is up and running!"
 			printf "$line\n"
 		else
 			printf "$line\n"
