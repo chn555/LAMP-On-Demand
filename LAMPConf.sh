@@ -110,7 +110,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	"Ngnix" "Nginx web server" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
-	if [[ $tempLAMP =~ "Apache" ]]; then
+	if [[ $(cat $tempLAMP) =~ "Apache" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			yum install httpd -y 2>> $web_install_stderr_log >> $web_install_stdout_log
 		elif [[ $Distro_Val =~ "debian" ]]; then
@@ -128,7 +128,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			exit 1
 		fi
-	elif [[ $tempLAMP =~ "Nginx" ]]; then
+	elif [[ $(cat $tempLAMP) =~ "Nginx" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			yum --enablerepo=epel -y install nginx 2>> $web_install_stderr_log >> $web_install_stdout_log
 		elif [[ $Distro_Val =~ "debian" ]]; then
@@ -146,7 +146,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			exit 1
 		fi
-	elif [[ $tempLAMP =~ "Exit" ]]; then
+	elif [[ $(cat $tempLAMP) =~ "Exit" ]]; then
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
 		printf "$line\n"
