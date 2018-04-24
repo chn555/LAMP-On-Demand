@@ -143,7 +143,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 				printf "$line\n"
 			fi
 			;;
-		Exit from the path to LAMP stack :()
+		"Exit from the path to LAMP stack :(")
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
 		printf "$line\n"
