@@ -114,7 +114,7 @@ Web_server_Installation () {		## choose which web server would you like to insta
 	"Ngnix" \
 	"Exit from the path to LAMP stack :(" 2> $tempLAMP
 
-for i in $tempLAMP; do
+for i in $(cat $tempLAMP); do
 	case $i in
 		Apache)
 			if [[ $Distro_Val =~ "centos" ]]; then
