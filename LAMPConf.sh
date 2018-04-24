@@ -74,9 +74,9 @@ Dialog_Check () {		## checks if dialog is installed, if it doesn't then install 
 		done
 		if [[ $answer =~ [y|Y] ]]; then
 			if [[ $Distro_Val =~ "centos" ]]; then
-				yum install dialog -y 2> $dialog_stderr_out > $dialog_stdout_log
+				yum install dialog -y 2>> $dialog_stderr_log >> $dialog_stdout_log
 			elif [[ $Distro_Val =~ "debian" ]]; then
-				apt-get install dialog -y 2> $dialog_stderr_out > $dialog_stdout_log
+				apt-get install dialog -y 2>> $dialog_stderr_log >> $dialog_stdout_log
 			fi
 				if [[ $? -eq 0 ]]; then
 					:
