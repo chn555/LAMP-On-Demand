@@ -94,7 +94,7 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 }
 
 Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then install whiptail
-	command -v whiptail
+	command -v whiptail &> /dev/null
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
@@ -363,6 +363,15 @@ Sql_Server_Configuration () {		## start the web server's service
 			exit 1
 		fi
 	fi
+}
+
+Lang_Installation () {
+	whiptail --title "LAMP-On-Demand" \
+	--menu "Please choose lang server to install:" 15 55 5 \
+	"PHP" "Fork of the MySQL relational database"\
+	"Python" "Object-relational database" \
+
+	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 }
 Root_Check
 Distro_Check
