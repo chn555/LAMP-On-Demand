@@ -17,16 +17,19 @@ Root_Check () {		## checks that the script runs as root
 Log_And_Variables () {		## set log path and variables for installation logs, makes sure whether log folder exists and if not, create it
 	####Variables####
 	line=#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!#!
-	whiptail_stderr_log=/var/log/LAMP-On-Demand/Error_whiptail_install.log
-	whiptail_stdout_log=/var/log/LAMP-On-Demand/whiptail_install.log
+	whiptail_install_stderr_log=/var/log/LAMP-On-Demand/Error_whiptail_install.log
 	web_install_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_install.log
-	web_install_stdout_log=/var/log/LAMP-On-Demand/websrv_install.log
-	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
-	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
 	sql_install_stderr_log=/var/log/LAMP-On-Demand/Error_sqlsrv_install.log
-	sql_install_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_install.log
+	lang_install_stderr_log=/var/log/LAMP-On-Demand/Error_lang_install.log
+	web_service_stderr_log=/var/log/LAMP-On-Demand/Error_websrv_service.log
 	sql_service_stderr_log=/var/log/LAMP-On-Demand/Error_sqlsrv_service.log
+	whiptail_install_stdout_log=/var/log/LAMP-On-Demand/whiptail_install.log
+	web_install_stdout_log=/var/log/LAMP-On-Demand/websrv_install.log
+	sql_install_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_install.log
+	lang_install_stdout_log=/var/log/LAMP-On-Demand/lang_install.log
+	web_service_stdout_log=/var/log/LAMP-On-Demand/websrv_service.log
 	sql_service_stdout_log=/var/log/LAMP-On-Demand/sqlsrv_service.log
+	firewall_log=/var/log/LAMP-On-Demand/firewall.log
 	log_folder=/var/log/LAMP-On-Demand
 	tempLAMP=$log_folder/LAMP_choise.tmp
 	apache_index_path=/var/www/html
@@ -45,8 +48,10 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 			<ul>
 				<li>ArchLinux</li>
 				<li>Manjaro</li>
-				<li>fedora</li>
-				<li>debian</li>
+				<li>Fedora</li>
+				<li>OpenSuse</li>
+				<li>SteamOS</li>
+				<li>Debian</li>
 			</ul>
 
 			</body>
@@ -107,9 +112,9 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 		done
 		if [[ $answer =~ [y|Y] ]]; then
 			if [[ $Distro_Val =~ "centos" ]]; then
-				yum install whiptail -y 2>> $whiptail_stderr_log >> $whiptail_stdout_log
+				yum install whiptail -y 2>> $whiptail_install_stderr_log_log >> $whiptail_install_stdout_log_log
 			elif [[ $Distro_Val =~ "debian" ]]; then
-				apt-get install whiptail -y 2>> $whiptail_stderr_log >> $whiptail_stdout_log
+				apt-get install whiptail -y 2>> $whiptail_install_stderr_log_log >> $whiptail_install_stdout_log_log
 			fi
 				if [[ $? -eq 0 ]]; then
 					:
@@ -148,7 +153,6 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			printf "Apache installation completed successfully, have a nice day!\n"
 			printf "$line\n"
-			Web_Server=Apache
 		else
 			printf "$line\n"
 			printf "Something went wrong during Apache installation\n"
@@ -166,7 +170,6 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			printf "Nginx installation completed successfully, have a nice day!\n"
 			printf "$line\n"
-			Web_Server=Nginx
 		else
 			printf "$line\n"
 			printf "Something went wrong during Nginx installation\n"
@@ -174,7 +177,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			exit 1
 		fi
-	elif [[ $(cat $tempLAMP) =~ "Exit" ]]; then
+	elif [[ "$(cat $tempLAMP)" =~ "Exit" ]]; then
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
 		printf "$line\n"
@@ -182,7 +185,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	}
 
 Web_Server_Configuration () {		## start the web server's service
-	if [[ $Web_Server =~ "Apache" ]]; then
+	if [[ "$(cat $tempLAMP)" =~ "Apache" ]]; then
 		$my_index_html > $apache_index_path
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
@@ -196,7 +199,38 @@ Web_Server_Configuration () {		## start the web server's service
 				exit 1
 			fi
 			systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
-			httpd_exit=$?
+			if [[ $? -eq 0 ]]; then
+				printf "$line\n"
+				printf "Apache web server is up and running!"
+				printf "$line\n"
+			else
+				printf "$line\n"
+				printf "Something went wrong while enabling the service\n"
+				printf "Please check the log file under $web_service_stderr_log\n"
+				printf "$line\n"
+				exit 1
+			fi
+			systemctl status firewalld |awk '{print $2}' |egrep 'active' &> /dev/null
+			if [[ $? -eq 0 ]]; then
+				firewall-cmd --add-service=http --permanent &> $firewall_log
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to add HTTP service to firewall rules\n"
+					printf "$line\n"
+				fi
+				firewall-cmd --reload
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to reload firewall\n"
+					printf "$line\n"
+				fi
+			else
+				:
+			fi
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			systemctl enable apache2 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
@@ -209,20 +243,19 @@ Web_Server_Configuration () {		## start the web server's service
 				exit 1
 			fi
 			systemctl restart apache2 2>> $web_service_stderr_log >> $web_service_stdout_log
-			apache_exit=$?
+			if [[ $? -eq 0 ]]; then
+				printf "$line\n"
+				printf "Apache web server is up and running!"
+				printf "$line\n"
+			else
+				printf "$line\n"
+				printf "Something went wrong while enabling the service\n"
+				printf "Please check the log file under $web_service_stderr_log\n"
+				printf "$line\n"
+				exit 1
+			fi
 		fi
-		if [[ $httpd_exit == 0 || $apache_exit == 0 ]]; then
-			printf "$line\n"
-			printf "Apache web server is up and running!"
-			printf "$line\n"
-		else
-			printf "$line\n"
-			printf "Something went wrong while enabling the service\n"
-			printf "Please check the log file under $web_service_stderr_log\n"
-			printf "$line\n"
-			exit 1
-		fi
-	elif [[ $Web_Server =~ "Nginx" ]]; then
+	elif [[ "$(cat $tempLAMP)" =~ "Nginx" ]]; then
 		$my_index_html > $nginx_index_path
 		systemctl enable nginx 2>> $web_service_stderr_log >> $web_service_stdout_log
 		if [[ $? -eq 0 ]] ;then
@@ -246,6 +279,31 @@ Web_Server_Configuration () {		## start the web server's service
 			printf "$line\n"
 			exit 1
 		fi
+		if [[ $Distro_Val =~ "centos" ]]; then
+			systemctl status firewalld |awk '{print $2}' |egrep 'active' &> /dev/null
+			if [[ $? -eq 0 ]]; then
+				firewall-cmd --add-service=http --permanent &> $firewall_log
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to add HTTP service to firewall rules\n"
+					printf "$line\n"
+				fi
+				firewall-cmd --reload
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to reload firewall\n"
+					printf "$line\n"
+				fi
+			else
+				:
+			fi
+		else
+			:
+		fi
 	fi
 }
 
@@ -257,17 +315,17 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 	"PostgreSQL" "Object-relational database" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
-	if [[ $tempLAMP =~ "MariaDB" ]]; then
+	if [[ "$(cat $tempLAMP)" =~ "MariaDB" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
-			yum install  mariadb-server -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
+			yum install mariadb-server mariadb -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			apt-get install mariadb-server mariadb-client -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
 		fi
+
 		if [[ $? -eq 0 ]]; then
 			printf "$line\n"
 			printf "MariaDB installation completed successfully, have a nice day!\n"
 			printf "$line\n"
-			sql_server="MariaDB"
 		else
 			printf "$line\n"
 			printf "Something went wrong during MariaDB installation\n"
@@ -275,7 +333,8 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 			printf "$line\n"
 			exit 1
 		fi
-	elif [[ $tempLAMP =~ "PostgreSQL" ]]; then
+
+	elif [[ "$(cat $tempLAMP)" =~ "PostgreSQL" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			yum install postgresql-server postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
 		elif [[ $Distro_Val =~ "debian" ]]; then
@@ -285,7 +344,6 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 			printf "$line\n"
 			printf "PostgreSQL installation completed successfully, have a nice day!\n"
 			printf "$line\n"
-			web_server=Nginx
 		else
 			printf "$line\n"
 			printf "Something went wrong during PostgreSQL installation\n"
@@ -293,67 +351,38 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 			printf "$line\n"
 			exit 1
 		fi
-	elif [[ $tempLAMP =~ "Exit" ]]; then
+	elif [[ "$(cat $tempLAMP)" =~ "Exit" ]]; then
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
 		printf "$line\n"
 	fi
-	}
+}
 
-Sql_Server_Configuration () {		## start the web server's service
-	if [[ $web_server =~ "MariaDB" ]]; then
-		if [[ $Distro_Val =~ "centos" ]]; then
-			systemctl enable mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
-			if [[ $? -eq 0 ]]; then
-				:
-			else
-				printf "$line\n"
-				printf "Something went wrong while enabling the service\n"
-				printf "Please check the log file under $sql_service_stderr_log\n"
-				printf "$line\n"
-				exit 1
-			fi
-			systemctl restart mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
-			if [[ $? -eq 0 ]] ;then
-				printf "$line\n"
-				printf "MariaDB sql server is up and running!"
-				printf "$line\n"
-			else
-				printf "$line\n"
-				printf "Something went wrong while enabling the service\n"
-				printf "Please check the log file under $sql_service_stderr_log\n"
-				printf "$line\n"
-				exit 1
-			fi		elif [[ $Distro_Val =~ "debian" ]]; then
-			systemctl enable mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
-			if [[ $? -eq 0 ]]; then
-				:
-			else
-				printf "$line\n"
-				printf "Something went wrong while enabling the service\n"
-				printf "Please check the log file under $sql_service_stderr_log\n"
-				printf "$line\n"
-				exit 1
-			fi
-			systemctl restart mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
-			if [[ $? -eq 0 ]] ;then
-				printf "$line\n"
-				printf "MariaDB sql server is up and running!"
-				printf "$line\n"
-			else
-				printf "$line\n"
-				printf "Something went wrong while enabling the service\n"
-				printf "Please check the log file under $sql_service_stderr_log\n"
-				printf "$line\n"
-				exit 1
-			fi
+Sql_Server_Configuration () {		## configure data base
+	if [[ "$(cat $tempLAMP)" =~ "MariaDB" ]]; then
+		mysql_secure_installation
+		if [[ $? -eq 0 ]]; then
+			:
+		else
+			printf "$line\n"
+			printf "Failed to securly configure mysql server\n"
+			printf "$line\n"
 		fi
 
-	elif [[ $sql_server =~ "PostgreSQL" ]]; then
-		sudo /etc/init.d/postgresql reload
+		systemctl enable mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+		if [[ $? -eq 0 ]]; then
+			:
+		else
+			printf "$line\n"
+			printf "Something went wrong while enabling the service\n"
+			printf "Please check the log file under $sql_service_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+		systemctl restart mariadb 2>> $sql_service_stderr_log >> $sql_service_stdout_log
 		if [[ $? -eq 0 ]] ;then
 			printf "$line\n"
-			printf "PostgreSQL  server is up and running!"
+			printf "MariaDB sql server is up and running!"
 			printf "$line\n"
 		else
 			printf "$line\n"
@@ -362,16 +391,114 @@ Sql_Server_Configuration () {		## start the web server's service
 			printf "$line\n"
 			exit 1
 		fi
+		if [[ $Distro_Val =~ "centos" ]]; then
+			systemctl status firewalld |awk '{print $2}' |egrep 'active' &> /dev/null
+			if [[ $? -eq 0 ]]; then
+				firewall-cmd --add-service=mysql --permanent &> $firewall_log
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to add MySQL service to firewall rules\n"
+					printf "$line\n"
+				fi
+				firewall-cmd --reload
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to reload firewall\n"
+					printf "$line\n"
+				fi
+			else
+				:
+			fi
+		else
+			:
+		fi
+
+	elif [[ "$(cat $tempLAMP)" =~ "PostgreSQL" ]]; then
+		systemctl enable postgresql 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+		if [[ $? -eq 0 ]]; then
+			:
+		else
+			printf "$line\n"
+			printf "Something went wrong while enabling the service\n"
+			printf "Please check the log file under $sql_service_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+		systemctl restart postgresql 2>> $sql_service_stderr_log >> $sql_service_stdout_log
+		if [[ $? -eq 0 ]]; then
+			printf "$line\n"
+			printf "Postgresql server is up and running!"
+			printf "$line\n"
+		else
+			printf "$line\n"
+			printf "Something went wrong while enabling the service\n"
+			printf "Please check the log file under $sql_service_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+		if [[ $Distro_Val =~ "centos" ]]; then
+			systemctl status firewalld |awk '{print $2}' |egrep 'active' &> /dev/null
+			if [[ $? -eq 0 ]]; then
+				firewall-cmd --add-service=mysql --permanent &> $firewall_log
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to add MySQL service to firewall rules\n"
+					printf "$line\n"
+				fi
+				firewall-cmd --reload
+				if [[ $? -eq 0 ]]; then
+					:
+				else
+					printf "$line\n"
+					printf "Failed to reload firewall\n"
+					printf "$line\n"
+				fi
+			else
+				:
+			fi
+		else
+			:
+		fi
 	fi
 }
 
-Lang_Installation () {
+Lang_Installation () {	## installs language support of user choice
 	whiptail --title "LAMP-On-Demand" \
 	--menu "Please choose lang server to install:" 15 55 5 \
-	"PHP" "Fork of the MySQL relational database"\
-	"Python" "Object-relational database" \
-
+	"PHP 5.4" "PHP Version 5.4" \
+	"PHP 7.0" "PHP Version 7.0" \
+	"Python" "Python Version 2.7" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
+
+	if [[ "$(cat $tempLAMP)" =~ "PHP" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			yum install php php-mysql -y 2>> $lang_install_stderr_log >> $lang_install_stdout_log
+		elif [[ $Distro_Val =~ "debian" ]]; then
+			apt-get install php php-mysql -y 2>> $lang_install_stderr_log >> $sql_install_stdout_log
+		fi
+		systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+		if [[ $? -eq 0 ]]; then
+			printf "$line\n"
+			printf "PHP support is up and running!"
+			printf "$line\n"
+		else
+			printf "$line\n"
+			printf "Something went wrong while enabling the service\n"
+			printf "Please check the log file under $web_service_stderr_log\n"
+			printf "$line\n"
+			exit 1
+		fi
+	elif [[ "$(cat $tempLAMP)" =~ "Exit" ]]; then
+		printf "$line\n"
+		printf "Exit - I hope you feel safe now\n"
+		printf "$line\n"
+	fi
 }
 Root_Check
 Distro_Check
