@@ -86,13 +86,13 @@ Distro_Check () {		## checking the environment the user is currenttly running on
 	  	:
 	fi
 
-	  cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^debian$|^\"Ubuntu\"$" &> /dev/null
+  cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^debian$|^\"Ubuntu\"$" &> /dev/null
 
-	  if [[ $? -eq 0 ]]; then
-	    	Distro_Val="debian"
-	  else
-	    	:
-	  fi
+  if [[ $? -eq 0 ]]; then
+    	Distro_Val="debian"
+  else
+    	:
+  fi
 
 	cat /etc/*-release |grep ID |cut  -d "=" -f "2" |egrep "^\"centos\"$|^\"fedora\"$" &> /dev/null
 
@@ -108,7 +108,7 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 	if [[ $? -eq 0 ]]; then
 		:
 	elif [[ $? -eq 1 ]]; then
-		printf "Whiptail is not installed...\n"
+		printf "Whiptail is needed to run this script and it's not installed...\n"
 		read -p "Would you like to install whiptail to run this script? [y/n]: " answer
 		until [[ $answer =~ [y|Y|n|N] ]]; do
 			printf "Invalid option\n"
@@ -117,55 +117,9 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 		done
 		if [[ $answer =~ [y|Y] ]]; then
 			if [[ $Distro_Val =~ "centos" ]]; then
-				yum install whiptail -y 2>> $whiptail_install_stderr_log_log >> $whiptail_install_stdout_log_log &
-				{
-					i=3
-					while true ;do
-						ps aux |egrep -Eo "$!" &> /dev/null
-						if [[ $? -eq 0 ]]; then
-							if [[ $i -le 94 ]]; then
-								printf "$i\n"
-								i=$(expr $i + 7)
-								sleep 2.5
-							else
-								:
-							fi
-						else
-							break
-						fi
-					done
-					printf "96\n"
-					sleep 0.5
-					printf "98\n"
-					sleep 0.5
-					printf "100\n"
-					sleep 1
-				} |whiptail --gauge "Please wait while installing..." 6 50 0
+				yum install whiptail -y 2>> $whiptail_install_stderr_log_log >> $whiptail_install_stdout_log_log
 			elif [[ $Distro_Val =~ "debian" ]]; then
-				apt-get install whiptail -y 2>> $whiptail_install_stderr_log_log >> $whiptail_install_stdout_log_log &
-				{
-					i=3
-					while true ;do
-						ps aux |egrep -Eo "$!" &> /dev/null
-						if [[ $? -eq 0 ]]; then
-							if [[ $i -le 94 ]]; then
-								printf "$i\n"
-								i=$(expr $i + 7)
-								sleep 2.5
-							else
-								:
-							fi
-						else
-							break
-						fi
-					done
-					printf "96\n"
-					sleep 0.5
-					printf "98\n"
-					sleep 0.5
-					printf "100\n"
-					sleep 1
-				} |whiptail --gauge "Please wait while installing..." 6 50 0
+				apt-get install whiptail -y 2>> $whiptail_install_stderr_log_log >> $whiptail_install_stdout_log_log
 			fi
 				if [[ $? -eq 0 ]]; then
 					:
@@ -174,6 +128,7 @@ Whiptail_Check () {		## checks if whiptail is installed, if it doesn't then inst
 					printf "Something went wrong during whiptail installation\n"
 					printf "Please check the log file under /var/log/LAMP-On-Demand/Error_whiptail_install.log\n"
 					printf "$line\n"
+					exit 1
 				fi
 		elif [[ $answer =~ [n|N] ]]; then
 			printf "$line\n"
@@ -191,6 +146,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 	--menu "Please choose web server to install:" 15 55 5 \
 	"Apache" "Open-source cross-platform web server" \
 	"Nginx" "Web, reverse proxy server and more" \
+	"<---Back" "Back to main menu" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 	clear
 
@@ -274,6 +230,10 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			printf "$line\n"
 			exit 1
 		fi
+
+	elif [[ "$(cat $tempLAMP)" == "<---Back" ]]; then
+		Main_Menu
+
 	elif [[ "$(cat $tempLAMP)" =~ "Exit" ]]; then
 		printf "$line\n"
 		printf "Exit - I hope you feel safe now\n"
@@ -410,6 +370,7 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 	--menu "Please choose sql server to install:" 15 55 5 \
 	"MariaDB" "Fork of the MySQL relational database"\
 	"PostgreSQL" "Object-relational database" \
+	"<---Back" "Back to main menu" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
 	if [[ "$(cat $tempLAMP)" =~ "MariaDB" ]]; then
@@ -517,10 +478,14 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 			printf "$line\n"
 			exit 1
 		fi
+
+	elif [[ "$(cat $tempLAMP)" == "<---Back" ]]; then
+		Main_Menu
+
 	elif [[ "$(cat $tempLAMP)" =~ "Exit" ]]; then
-		printf "$line\n"
-		printf "Exit - I hope you feel safe now\n"
-		printf "$line\n"
+		whiptail --title "LAMP-On-Demand" \
+		--msgbox "\nExit - I hope you feel safe now." 8 78
+		exit 0
 	fi
 }
 
@@ -636,6 +601,7 @@ Lang_Installation () {	## installs language support of user choice
 	"PHP 5.4" "PHP Version 5.4 (***CentOS_7 only***)" \
 	"PHP 7.0" "PHP Version 7.0" \
 	"Python" "Python Version 3" \
+	"<---Back" "Back to main menu" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
 
 	if [[ "$(cat $tempLAMP)" == "PHP 5.4" ]]; then
@@ -756,10 +722,13 @@ Lang_Installation () {	## installs language support of user choice
 				--msgbox "\nSomething went wrong, Remi's reop installation failed." 8 78
 			fi
 
+	elif [[ "$(cat $tempLAMP)" == "<---Back" ]]; then
+		Main_Menu
+
 	elif [[ "$(cat $tempLAMP)" =~ "Exit" ]]; then
-		printf "$line\n"
-		printf "Exit - I hope you feel safe now\n"
-		printf "$line\n"
+		whiptail --title "LAMP-On-Demand" \
+		--msgbox "\nExit - I hope you feel safe now." 8 78
+		exit 0
 	fi
 }
 
@@ -792,12 +761,35 @@ Lang_Configuration () {
 		elif [[ $Distro_Val =~ "debian" ]]; then
 }
 
+Main_Menu () {
+	####function call####
+	Root_Check
+	Distro_Check
+	Log_And_Variables
+	Whiptail_Check
+	####function call####
 
-Root_Check
-Distro_Check
-Log_And_Variables
-Whiptail_Check
-Web_Server_Installation
-Web_Server_Configuration
-Sql_Server_Installation
-Sql_Server_Configuration
+	whiptail --title "LAMP-On-Demand" \
+	--menu "Please choose what whould you like to install:" 15 55 5 \
+	"Web server" "Apache2, Nginx" \
+	"DataBase server" "MariaDB, PostgreSQL" \
+	"Language" "PHP, Python 3.6" \
+	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
+
+	if [[ "$(cat $tempLAMP)" == "Web server" ]]; then
+		Web_Server_Installation
+		Web_Server_Configuration
+	elif [[ "$(cat $tempLAMP)" == "DataBase server" ]]; then
+		Sql_Server_Installation
+		Sql_Server_Configuration
+	elif [[ "$(cat $tempLAMP)" == "Language server" ]]; then
+		Lang_Installation
+		Lang_Configuration
+	elif [[ "$(cat $tempLAMP)" == "Exit" ]];
+		whiptail --title "LAMP-On-Demand" \
+		--msgbox "\nExit - I hope you feel safe now." 8 78
+		exit 0
+	fi
+}
+
+Main_Menu
