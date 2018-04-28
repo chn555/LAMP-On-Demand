@@ -721,6 +721,7 @@ Lang_Installation () {	## installs language support of user choice
 				whiptail --title "LAMP-On-Demand" \
 				--msgbox "\nSomething went wrong, Remi's reop installation failed." 8 78
 			fi
+		fi
 
 	elif [[ "$(cat $tempLAMP)" == "<---Back" ]]; then
 		Main_Menu
