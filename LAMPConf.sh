@@ -726,25 +726,6 @@ Lang_Installation () {	## installs language support of user choice
 				--msgbox "\nSomething went wrong, PHP 7.0 installation failed." 8 78
 				exit 1
 			fi
-			sed -ie 's/SetHandler.*/SetHandler \"proxy:fcgi://127.0.0.1:9000\"/' $php_conf_file
-			if [[ $? -eq 0 ]]; then
-				:
-				systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
-				if [[ $? -eq 0 ]]; then
-					whiptail --title "LAMP-On-Demand" \
-					--msgbox "\nPHP 7.0 support is up and running." 8 78
-				else
-					printf "$line\n"
-					printf "Something went wrong while enabling the service\n"
-					printf "Please check the log file under $web_service_stderr_log\n"
-					printf "$line\n"
-					exit 1
-				fi
-			else
-				whiptail --title "LAMP-On-Demand" \
-				--msgbox "\nThere was a problem with sed command or the \"php.conf\" file doesn't exists" 8 78
-				exit 1
-			fi
 
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			apt-get install php7.0 php7.0-mysql libapache2-mod-php7.0 -y 2>> $lang_install_stderr_log >> $sql_install_stdout_log &
@@ -787,27 +768,32 @@ Lang_Installation () {	## installs language support of user choice
 }
 
 Lang_Configuration () {
-	if [[ $(cat $tempLAMP)]]
-
-	sed -ie 's/SetHandler.*/SetHandler \"proxy:fcgi://127.0.0.1:9000\"/' $php_conf_file
-	if [[ $? -eq 0 ]]; then
-		:
-		systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+	if [[ $Distro_Val =~ "centos" ]]; then
+		systemctl status httpd |awk '{print $2}' |egrep 'active' &> /dev/null
 		if [[ $? -eq 0 ]]; then
-			whiptail --title "LAMP-On-Demand" \
-			--msgbox "\nPHP 7.0 support is up and running." 8 78
+			sed -ie 's/SetHandler.*/SetHandler \"proxy:fcgi://127.0.0.1:9000\"/' $php_conf_file
+			if [[ $? -eq 0 ]]; then
+				systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+				if [[ $? -eq 0 ]]; then
+					whiptail --title "LAMP-On-Demand" \
+					--msgbox "\nPHP 7.0 support is up and running!" 8 78
+				else
+					whiptail --title "LAMP-On-Demand" \
+					--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
+					exit 1
+				fi
+			else
+				whiptail --title "LAMP-On-Demand" \
+				--msgbox "\nThere was a problem with sed command or the \"php.conf\" file doesn't exists" 8 78
+				exit 1
+			fi
+
 		else
-			printf "$line\n"
-			printf "Something went wrong while enabling the service\n"
-			printf "Please check the log file under $web_service_stderr_log\n"
-			printf "$line\n"
-			exit 1
-		fi
-	else
-		whiptail --title "LAMP-On-Demand" \
-		--msgbox "\nThere was a problem with sed command or the \"php.conf\" file doesn't exists" 8 78
-		exit 1
-	fi
+			systemctl status nginx |awk '{print $2}' |egrep 'active' &> /dev/null
+			if [[ $? -eq 0 ]]; then
+
+
+		elif [[ $Distro_Val =~ "debian" ]]; then
 }
 
 
