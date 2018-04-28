@@ -588,22 +588,18 @@ Sql_Server_Configuration () {		## configure data base
 		if [[ $? -eq 0 ]]; then
 			:
 		else
-			printf "$line\n"
-			printf "Something went wrong while enabling the service\n"
-			printf "Please check the log file under $sql_service_stderr_log\n"
-			printf "$line\n"
+			whiptail --title "LAMP-On-Demand" \
+			--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $sql_service_stderr_log" 8 78
 			exit 1
 		fi
 		systemctl restart postgresql 2>> $sql_service_stderr_log >> $sql_service_stdout_log
 		if [[ $? -eq 0 ]]; then
-			printf "$line\n"
-			printf "Postgresql server is up and running!"
-			printf "$line\n"
+			whiptail --title "LAMP-On-Demand" \
+			--msgbox "\nPostgresql server is up and running!" 8 78
+			Main_Menu
 		else
-			printf "$line\n"
-			printf "Something went wrong while enabling the service\n"
-			printf "Please check the log file under $sql_service_stderr_log\n"
-			printf "$line\n"
+			whiptail --title "LAMP-On-Demand" \
+			--msgbox "\nSomething went wrong while restarting the service.\nPlease check the log file under $sql_service_stderr_log" 8 78
 			exit 1
 		fi
 		if [[ $Distro_Val =~ "centos" ]]; then
@@ -613,23 +609,23 @@ Sql_Server_Configuration () {		## configure data base
 				if [[ $? -eq 0 ]]; then
 					:
 				else
-					printf "$line\n"
-					printf "Failed to add MySQL service to firewall rules\n"
-					printf "$line\n"
+					whiptail --title "LAMP-On-Demand" \
+					--msgbox "\nFailed to add MySQL service to firewall rules.\nPlease check the log file under $firewall_log" 8 78
+					exit 1
 				fi
 				firewall-cmd --reload
 				if [[ $? -eq 0 ]]; then
-					:
+					Main_Menu
 				else
-					printf "$line\n"
-					printf "Failed to reload firewall\n"
-					printf "$line\n"
+					whiptail --title "LAMP-On-Demand" \
+					--msgbox "\nFailed to reload firewall.\nPlease check the log file under $firewall_log" 8 78
+					exit 1
 				fi
 			else
-				:
+				Main_Menu
 			fi
 		else
-			:
+			Main_Menu
 		fi
 	fi
 }
@@ -654,7 +650,7 @@ Lang_Installation () {	## installs language support of user choice
 		if [[ $? -eq 0 ]]; then
 			whiptail --title "LAMP-On-Demand" \
 			--msgbox "\nPHP support is up and running!" 8 78
-			# Main_Menu
+		 	Main_Menu
 		else
 			whiptail --title "LAMP-On-Demand" \
 			--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
