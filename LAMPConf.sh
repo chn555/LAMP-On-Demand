@@ -180,7 +180,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			yum install httpd -y 2>> $web_install_stderr_log >> $web_install_stdout_log &
 			{
 				i=3
-				for i in 1..100; do
+				for i in {1..100}; do
 					ps aux |pgrep yum &> /dev/null
 					if [[ $? -eq 0 ]]; then
 						if [[ $i -le 94 ]]; then
