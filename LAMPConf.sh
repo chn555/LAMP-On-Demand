@@ -42,7 +42,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	apache_index_path=/var/www/html/index.html
 	nginx_index_path=/usr/share/nginx/html
 	nginx_conf_path=/etc/conf.d/default.conf
-	my_index_html=printf 	"	<!DOCTYPE html>
+	my_index_html=$(printf 	"	<!DOCTYPE html>
 	<html>
 		<head>
 			<title>LAMP-On-Demand</title>
@@ -63,7 +63,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 
 			</body>
 	</html>
-	"
+	")
 	nginx_conf_file=$(printf "
 	server {
     listen       80;
