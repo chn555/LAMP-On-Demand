@@ -267,7 +267,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 
 Web_Server_Configuration () {		## start the web server's service
 	if [[ "$(cat $tempLAMP)" =~ "Apache" ]]; then
-		$my_index_html > $apache_index_path << _EOF_
+		$my_index_html > $apache_index_path <<- _EOF_
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
