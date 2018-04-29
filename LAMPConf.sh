@@ -265,7 +265,28 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 
 Web_Server_Configuration () {		## start the web server's service
 	if [[ "$(cat $tempLAMP)" =~ "Apache" ]]; then
-		cat $my_index_html > $apache_index_path
+		cat $my_index_html > $apache_index_path << _EOF_
+		<html>
+				<head>
+					<title>LAMP-On-Demand</title>
+				</head>
+				<body>
+					<h1>This page is badly writen</h1>
+
+					<p>Best Distro (from top to bottom)</p>
+
+					<ul>
+						<li>ArchLinux</li>
+						<li>Manjaro</li>
+						<li>Fedora</li>
+						<li>OpenSuse</li>
+						<li>SteamOS</li>
+						<li>Debian</li>
+					</ul>
+					</body>
+			</html>
+_EOF_	
+
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
