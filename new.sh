@@ -77,7 +77,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 
 Web_Server_Installation () {		## choose which web server would you like to install
 	## prompt the user with a menu to select whether to install apache or nginx web server
-  Web_Server_Installation_Options="Apache Ngnix"
+  Web_Server_Installation_Options="Apache Nginx"
   select Web_Server in $Web_Server_Installation_Options; do
   	if [[ $Web_Server =~ "Apache" ]]; then
   		if [[ $Distro_Val =~ "centos" ]]; then
