@@ -93,13 +93,13 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 Main_Menu () {
   Main_Menu_Options="Web_Server DataBase_Server Exit"
   select $Entry in $Main_Menu_Options
-  	if [[ "$(cat $Entry)" == "Web_Server" ]]; then
+  	if [[  $Entry == "Web_Server" ]]; then
   		Web_Server_Installation
   		Web_Server_Configuration
-  	elif [[ "$(cat $Entry)" == "DataBase_Server" ]]; then
+  	elif [[ " $Entry == "DataBase_Server" ]]; then
   		Sql_Server_Installation
   		Sql_Server_Configuration
-  	elif [[ "$(cat $Entry)" == "Exit" ]]; then
+  	elif [[  $Entry == "Exit" ]]; then
   		printf "\nExit - I hope you feel safe now."
   		exit 0
   	fi
