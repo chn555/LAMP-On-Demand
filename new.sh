@@ -100,7 +100,7 @@ Main_Menu () {
   		Sql_Server_Installation
   		Sql_Server_Configuration
   	elif [[ $Entry == "Exit" ]]; then
-  		printf "\nExit - I hope you feel safe now."
+  		printf "\nExit - I hope you feel safe now.\n"
   		exit 0
   	fi
 	done
