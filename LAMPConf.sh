@@ -34,7 +34,9 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	remi_reop_stderr_log=/var/log/LAMP-On-Demand/Error_remi_repo.log
 	remi_reop_stdout_log=/var/log/LAMP-On-Demand/remi_repo.log
 	firewall_log=/var/log/LAMP-On-Demand/firewall.log
-	php_conf_file=/etc/httpd/conf.d/php.conf
+	php_conf=/etc/httpd/conf.d/php.conf
+	php_fpm_conf=/etc/php-fpm.d/www.conf
+	php_ini_conf=/etc/php.ini
 	log_folder=/var/log/LAMP-On-Demand
 	tempLAMP=$log_folder/LAMP_choise.tmp
 	apache_index_path=/var/www/html
@@ -522,7 +524,7 @@ Sql_Server_Configuration () {		## configure data base
 			printf "$line\n"
 			exit 1
 		fi
-		
+
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl status firewalld |awk '{print $2}' |egrep 'active' &> /dev/null
 			if [[ $? -eq 0 ]]; then
@@ -607,22 +609,13 @@ Lang_Installation () {	## installs language support of user choice
 
 	if [[ "$(cat $tempLAMP)" == "PHP 5.4" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
-			yum install php php-mysql -y 2>> $lang_install_stderr_log >> $lang_install_stdout_log
+			yum install php php-mysql php-fpm -y 2>> $lang_install_stderr_log >> $lang_install_stdout_log
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			whiptail --title "LAMP-On-Demand" \
 			--msgbox "\nSorry, this script doesn't support php 5.4 installation for Debian." 8 78
 			Lang_Installation
 		fi
-		systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
-		if [[ $? -eq 0 ]]; then
-			whiptail --title "LAMP-On-Demand" \
-			--msgbox "\nPHP support is up and running!" 8 78
-		 	Main_Menu
-		else
-			whiptail --title "LAMP-On-Demand" \
-			--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
-			exit 1
-		fi
+
 	elif [[ "$(cat $tempLAMP)" == "PHP 7.0" ]]; then
 		if [[ $Distro_Val =~ "centos" ]]; then
 			yum -y install http://rpms.famillecollet.com/enterprise/remi-release-7.rpm 2>> $remi_reop_stderr_log >> $remi_reop_stdout_log &
@@ -735,34 +728,69 @@ Lang_Installation () {	## installs language support of user choice
 }
 
 Lang_Configuration () {
-	if [[ $Distro_Val =~ "centos" ]]; then
-		systemctl status httpd |awk '{print $2}' |egrep 'active' &> /dev/null
-		if [[ $? -eq 0 ]]; then
-			sed -ie 's/SetHandler.*/SetHandler \"proxy:fcgi://127.0.0.1:9000\"/' $php_conf_file
+	if [[ "$(cat $tempLAMP)" == "PHP 5.4" ]]; then
+		if [[ $Distro_Val =~ "centos" ]]; then
+			systemctl status httpd |awk '{print $2}' |egrep 'active' &> /dev/null
 			if [[ $? -eq 0 ]]; then
-				systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+				sed -ie 's/SetHandler.*/SetHandler \"proxy:fcgi://127.0.0.1:9000\"/' $php_conf
 				if [[ $? -eq 0 ]]; then
-					whiptail --title "LAMP-On-Demand" \
-					--msgbox "\nPHP 7.0 support is up and running!" 8 78
+					systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+					if [[ $? -eq 0 ]]; then
+						whiptail --title "LAMP-On-Demand" \
+						--msgbox "\nPHP 7.0 support is up and running!" 8 78
+					else
+						whiptail --title "LAMP-On-Demand" \
+						--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
+						exit 1
+					fi
 				else
 					whiptail --title "LAMP-On-Demand" \
-					--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
+					--msgbox "\nThere was a problem with sed command or the \"php.conf\" file doesn't exists" 8 78
 					exit 1
 				fi
+
 			else
-				whiptail --title "LAMP-On-Demand" \
-				--msgbox "\nThere was a problem with sed command or the \"php.conf\" file doesn't exists" 8 78
-				exit 1
-			fi
+				systemctl status nginx |awk '{print $2}' |egrep 'active' &> /dev/null
+				if [[ $? -eq 0 ]]; then
+					sed -ie 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' $php_ini_conf
+					if [[ $? -eq 0 ]]; then
+						:
+					else
+						whiptail --title "LAMP-On-Demand" \
+						--msgbox "\nThere was a problem with sed command on \"$php_ini_conf\" file" 8 78
+						exit 1
+					fi
+					sed ie 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm\/php-fpm.sock/' $php_fpm_conf
+					if [[ $? -eq 0 ]]; then
+						:
+					else
+						whiptail --title "LAMP-On-Demand" \
+						--msgbox "\nThere was a problem with sed command on \"$php_fpm_conf\" file" 8 78
+						exit 1
+					fi
+					sed -ie 's/user = apache/user = nginx/' $php_fpm_conf
+					if [[ $? -eq 0 ]]; then
+						systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+						if [[ $? -eq 0 ]]; then
+							whiptail --title "LAMP-On-Demand" \
+							--msgbox "\nPHP support is up and running!" 8 78
+							Main_Menu
+						else
+							whiptail --title "LAMP-On-Demand" \
+							--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
+							exit 1
+						fi
+					else
+						whiptail --title "LAMP-On-Demand" \
+						--msgbox "\nThere was a problem with sed command on \"$php_fpm_conf\" file" 8 78
+						exit 1
+					fi
 
-		else
-			systemctl status nginx |awk '{print $2}' |egrep 'active' &> /dev/null
-			if [[ $? -eq 0 ]]; then
 
 
-	elif [[ $Distro_Val =~ "debian" ]]; then
+		elif [[ $Distro_Val =~ "debian" ]]; then
 
-	fi
+		fi
 }
 
 Main_Menu () {
