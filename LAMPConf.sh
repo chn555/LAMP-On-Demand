@@ -42,7 +42,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	apache_index_path=/var/www/html/index.html
 	nginx_index_path=/usr/share/nginx/html
 	nginx_conf_path=/etc/conf.d/default.conf
-	my_index_html=cat << _EOF_
+	my_index_html="
 		<html>
 			<head>
 				<title>LAMP-On-Demand</title>
@@ -63,7 +63,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 
 				</body>
 		</html>
-_EOF_
+    _EOF_"
 
 	nginx_conf_file=$(printf "
 	server {
@@ -267,7 +267,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 
 Web_Server_Configuration () {		## start the web server's service
 	if [[ "$(cat $tempLAMP)" =~ "Apache" ]]; then
-		$my_index_html > $apache_index_path
+		$my_index_html > $apache_index_path << _EOF_
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl enable httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
 			if [[ $? -eq 0 ]]; then
