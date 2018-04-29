@@ -814,6 +814,27 @@ Lang_Configuration () {
 					fi
 
 
+	if [[ "$(cat $tempLAMP)" == "PHP 5.4" ]]; then
+		systemctl status httpd |awk '{print $2}' |egrep 'active' &> /dev/null
+		if [[ $? -eq 0 ]]; then
+			:
+			if [[ $? -eq 0 ]]; then
+				systemctl restart httpd 2>> $web_service_stderr_log >> $web_service_stdout_log
+				if [[ $? -eq 0 ]]; then
+					whiptail --title "LAMP-On-Demand" \
+					--msgbox "\nPHP 7.0 support is up and running!" 8 78
+				else
+					whiptail --title "LAMP-On-Demand" \
+					--msgbox "\nSomething went wrong while enabling the service.\nPlease check the log file under $web_service_stderr_log" 8 78
+					exit 1
+				fi
+			else
+				whiptail --title "LAMP-On-Demand" \
+				--msgbox "\nThere was a problem with sed command or the \"php.conf\" file doesn't exists" 8 78
+				exit 1
+			fi
+
+
 
 		elif [[ $Distro_Val =~ "debian" ]]; then
 
