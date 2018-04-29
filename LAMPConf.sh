@@ -39,7 +39,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	php_ini_conf=/etc/php.ini
 	log_folder=/var/log/LAMP-On-Demand
 	tempLAMP=$log_folder/LAMP_choise.tmp
-	apache_index_path=/var/www/html
+	apache_index_path=/var/www/html/index.html
 	nginx_index_path=/usr/share/nginx/html
 	nginx_conf_path=/etc/conf.d/default.conf
 	my_index_html=$(printf "
