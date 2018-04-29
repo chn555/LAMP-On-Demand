@@ -43,27 +43,28 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	nginx_index_path=/usr/share/nginx/html
 	nginx_conf_path=/etc/conf.d/default.conf
 	my_index_html=cat << _EOF_
-	<html>
-		<head>
-			<title>LAMP-On-Demand</title>
-		</head>
-		<body>
-			<h1>This page is badly writen</h1>
+		<html>
+			<head>
+				<title>LAMP-On-Demand</title>
+			</head>
+			<body>
+				<h1>This page is badly writen</h1>
 
-			<p>Best Distro (from top to bottom)</p>
+				<p>Best Distro (from top to bottom)</p>
 
-			<ul>
-				<li>ArchLinux</li>
-				<li>Manjaro</li>
-				<li>Fedora</li>
-				<li>OpenSuse</li>
-				<li>SteamOS</li>
-				<li>Debian</li>
-			</ul>
+				<ul>
+					<li>ArchLinux</li>
+					<li>Manjaro</li>
+					<li>Fedora</li>
+					<li>OpenSuse</li>
+					<li>SteamOS</li>
+					<li>Debian</li>
+				</ul>
 
-			</body>
-	</html>
+				</body>
+		</html>
 _EOF_
+
 	nginx_conf_file=$(printf "
 	server {
     listen       80;
