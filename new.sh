@@ -96,7 +96,7 @@ Main_Menu () {
   	if [[  $Entry == "Web_Server" ]]; then
   		Web_Server_Installation
   		Web_Server_Configuration
-  	elif [[ " $Entry == "DataBase_Server" ]]; then
+  	elif [[  $Entry == "DataBase_Server" ]]; then
   		Sql_Server_Installation
   		Sql_Server_Configuration
   	elif [[  $Entry == "Exit" ]]; then
