@@ -640,7 +640,7 @@ Main_Menu () {
 	elif [[ "$(cat $tempLAMP)" == "DataBase server" ]]; then
 		Sql_Server_Installation
 		Sql_Server_Configuration
-	elif [[ "$(cat $tempLAMP)" == "Exit" ]];
+	elif [[ "$(cat $tempLAMP)" == "Exit" ]]; then
 		whiptail --title "LAMP-On-Demand" \
 		--msgbox "\nExit - I hope you feel safe now." 8 78
 		exit 0
