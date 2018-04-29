@@ -93,11 +93,7 @@ Log_And_Variables () {		## set log path and variables for installation logs, mak
 	")
 	####Variables####
 
-	if [[ -d $index_path ]]; then
-		:
-	else
-		mkdir -p $index_path
-	fi
+
 
 	if [[ -d $log_folder ]]; then
 		:
