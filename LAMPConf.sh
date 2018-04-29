@@ -628,7 +628,7 @@ Sql_Server_Configuration () {		## configure data base
 Main_Menu () {
 
 	whiptail --title "LAMP-On-Demand" \
-	--menu "Please choose what whould you like to install:" 15 40 5 \
+	--menu "Please choose what whould you like to install:" 15 78 5 \
 	"Web server" "Apache2, Nginx" \
 	"DataBase server" "MariaDB, PostgreSQL" \
 	"Exit" "Walk away from the path to LAMP stack :(" 2> $tempLAMP
