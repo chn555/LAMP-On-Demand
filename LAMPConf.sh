@@ -522,6 +522,7 @@ Sql_Server_Configuration () {		## configure data base
 			printf "$line\n"
 			exit 1
 		fi
+		
 		if [[ $Distro_Val =~ "centos" ]]; then
 			systemctl status firewalld |awk '{print $2}' |egrep 'active' &> /dev/null
 			if [[ $? -eq 0 ]]; then
@@ -759,7 +760,8 @@ Lang_Configuration () {
 			if [[ $? -eq 0 ]]; then
 
 
-#	elif [[ $Distro_Val =~ "debian" ]]; then
+	elif [[ $Distro_Val =~ "debian" ]]; then
+
 	fi
 }
 
