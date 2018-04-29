@@ -189,21 +189,21 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 					if [[ $? -eq 0 ]]; then
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
-							i=$(expr $i + 7)
+							i=$(expr $i + 1)
 							sleep 2.5
-						else
-							:
+						elif [[ $i -gt 94 ]]; then
+							printf "96\n"
+							sleep 0.5
+							printf "98\n"
+							sleep 0.5
+							printf "100\n"
+							sleep 1
 						fi
 					else
 						break
 					fi
 				done
-				printf "96\n"
-				sleep 0.5
-				printf "98\n"
-				sleep 0.5
-				printf "100\n"
-				sleep 1
+
 			} |whiptail --gauge "Please wait while installing..." 6 50 0
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			apt-get install apache2 -y 2>> $web_install_stderr_log >> $web_install_stdout_log &
