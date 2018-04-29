@@ -202,26 +202,24 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 			apt-get install apache2 -y 2>> $web_install_stderr_log >> $web_install_stdout_log &
 			{
 				i=3
-				while true ;do
-					ps aux |egrep -Eo "$!" &> /dev/null
+				for i in {1..100}; do
+					ps aux |pgrep yum &> /dev/null
 					if [[ $? -eq 0 ]]; then
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
-							sleep 2.5
-						else
-							:
+						elif [[ $i -gt 94 ]]; then
+							printf "96\n"
+							sleep 0.5
+							printf "98\n"
+							sleep 0.5
+							printf "100\n"
+							sleep 1
 						fi
 					else
 						break
 					fi
 				done
-				printf "96\n"
-				sleep 0.5
-				printf "98\n"
-				sleep 0.5
-				printf "100\n"
-				sleep 1
 			} |whiptail --gauge "Please wait while installing..." 6 50 0
 		fi
 		if [[ $? -eq 0 ]]; then
@@ -419,26 +417,24 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 			yum install mariadb-server mariadb -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log &
 			{
 				i=3
-				while true ;do
-					ps aux |egrep -Eo "$!" &> /dev/null
+				for i in {1..100}; do
+					ps aux |pgrep yum &> /dev/null
 					if [[ $? -eq 0 ]]; then
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
-							sleep 2.5
-						else
-							:
+						elif [[ $i -gt 94 ]]; then
+							printf "96\n"
+							sleep 0.5
+							printf "98\n"
+							sleep 0.5
+							printf "100\n"
+							sleep 1
 						fi
 					else
 						break
 					fi
 				done
-				printf "96\n"
-				sleep 0.5
-				printf "98\n"
-				sleep 0.5
-				printf "100\n"
-				sleep 1
 			} |whiptail --gauge "Please wait while installing..." 6 50 0
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			apt-get install mariadb-server mariadb-client -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log
@@ -461,51 +457,47 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 			yum install postgresql-server postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log &
 			{
 				i=3
-				while true ;do
-					ps aux |egrep -Eo "$!" &> /dev/null
+				for i in {1..100}; do
+					ps aux |pgrep yum &> /dev/null
 					if [[ $? -eq 0 ]]; then
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
-							sleep 2.5
-						else
-							:
+						elif [[ $i -gt 94 ]]; then
+							printf "96\n"
+							sleep 0.5
+							printf "98\n"
+							sleep 0.5
+							printf "100\n"
+							sleep 1
 						fi
 					else
 						break
 					fi
 				done
-				printf "96\n"
-				sleep 0.5
-				printf "98\n"
-				sleep 0.5
-				printf "100\n"
-				sleep 1
 			} |whiptail --gauge "Please wait while installing..." 6 50 0
 		elif [[ $Distro_Val =~ "debian" ]]; then
 			apt-get install postgresql postgresql-contrib -y 2>> $sql_install_stderr_log >> $sql_install_stdout_log &
 			{
 				i=3
-				while true ;do
-					ps aux |egrep -Eo "$!" &> /dev/null
+				for i in {1..100}; do
+					ps aux |pgrep yum &> /dev/null
 					if [[ $? -eq 0 ]]; then
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
-							sleep 2.5
-						else
-							:
+						elif [[ $i -gt 94 ]]; then
+							printf "96\n"
+							sleep 0.5
+							printf "98\n"
+							sleep 0.5
+							printf "100\n"
+							sleep 1
 						fi
 					else
 						break
 					fi
 				done
-				printf "96\n"
-				sleep 0.5
-				printf "98\n"
-				sleep 0.5
-				printf "100\n"
-				sleep 1
 			} |whiptail --gauge "Please wait while installing..." 6 50 0
 		fi
 		if [[ $? -eq 0 ]]; then
