@@ -99,7 +99,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
   		fi
   	elif [[  $Web_Server =~ "Nginx" ]]; then
   		if [[ $Distro_Val =~ "centos" ]]; then
-				sudo yum install -y  epel-release
+				sudo yum install -y  epel-release 2>> $web_install_stderr_log >> $web_install_stdout_log
   			yum -y install nginx 2>> $web_install_stderr_log >> $web_install_stdout_log
   		elif [[ $Distro_Val =~ "debian" ]]; then
   			apt-get install nginx -y 2>> $web_install_stderr_log >> $web_install_stdout_log
