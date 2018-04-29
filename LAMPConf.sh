@@ -759,7 +759,8 @@ Lang_Configuration () {
 			if [[ $? -eq 0 ]]; then
 
 
-		elif [[ $Distro_Val =~ "debian" ]]; then
+#	elif [[ $Distro_Val =~ "debian" ]]; then
+	fi
 }
 
 Main_Menu () {
