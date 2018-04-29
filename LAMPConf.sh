@@ -184,6 +184,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
+							sleep 7s
 						elif [[ $i -gt 94 ]]; then
 							printf "96\n"
 							sleep 0.5
@@ -208,6 +209,7 @@ Web_Server_Installation () {		## choose which web server would you like to insta
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
+							sleep 7s
 						elif [[ $i -gt 94 ]]; then
 							printf "96\n"
 							sleep 0.5
@@ -423,6 +425,7 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
+							sleep 7s
 						elif [[ $i -gt 94 ]]; then
 							printf "96\n"
 							sleep 0.5
@@ -463,6 +466,7 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
+						  sleep 7s
 						elif [[ $i -gt 94 ]]; then
 							printf "96\n"
 							sleep 0.5
@@ -486,6 +490,7 @@ Sql_Server_Installation () {		## choose which data base server would you like to
 						if [[ $i -le 94 ]]; then
 							printf "$i\n"
 							i=$(expr $i + 7)
+							sleep 7s
 						elif [[ $i -gt 94 ]]; then
 							printf "96\n"
 							sleep 0.5
